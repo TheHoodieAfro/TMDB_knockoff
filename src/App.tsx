@@ -1,34 +1,69 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import React, { useEffect, useState } from 'react'
 import './App.css'
+import Movie from './components/movie'
+import Grid from '@mui/material/Unstable_Grid2';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import { API_key } from "./utils/constants"
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const [movies, setMovies] = useState([])
+
+  useEffect(() => {
+    fetch("https://api.themoviedb.org/3/movie/popular?api_key=" + API_key)
+      .then(response => response.json())
+      .then(data => {
+        setMovies(data.results)
+      })
+  }, [])
+
+  const getPopular = () => {
+    fetch("https://api.themoviedb.org/3/movie/popular?api_key=" + API_key)
+      .then(response => response.json())
+      .then(data => {
+        setMovies(data.results)
+      })
+  }
+
+  const getMostVoted = () => {
+    fetch("https://api.themoviedb.org/3/movie/top_rated?api_key=" + API_key)
+      .then(response => response.json())
+      .then(data => {
+        setMovies(data.results)
+      })
+  }
+
+  const getLatest = () => {
+    fetch("https://api.themoviedb.org/3/movie/now_playing?api_key=" + API_key)
+      .then(response => response.json())
+      .then(data => {
+        setMovies(data.results)
+      })
+  }
 
   return (
+
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+
+      <ButtonGroup variant="outlined" aria-label="outlined button group">
+        <Button onClick={() => getPopular()}>Popular</Button>
+        <Button onClick={() => getMostVoted()}>Top rated</Button>
+        <Button onClick={() => getLatest()}>Latest</Button>
+      </ButtonGroup>
+
+      <Grid container spacing={3}>
+        {movies.length > 0 && movies.map((movie) =>
+          <Grid xs={3} key={movie['id']}>
+            <Movie key={movie['id']} {...(typeof movie === 'object' ? movie : {})} />
+          </Grid>
+        )}
+      </Grid>
+
     </div>
+
   )
+
 }
 
 export default App
