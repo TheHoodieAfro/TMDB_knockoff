@@ -9,6 +9,7 @@ import { API_key } from "./utils/constants"
 function App() {
 
   const [movies, setMovies] = useState([])
+  const [session, setSession] = useState("")
 
   useEffect(() => {
     fetch("https://api.themoviedb.org/3/movie/popular?api_key=" + API_key)
@@ -16,6 +17,14 @@ function App() {
       .then(data => {
         setMovies(data.results)
       })
+
+    fetch("https://api.themoviedb.org/3/authentication/session/new?api_key=" + API_key)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+        setSession(data.request_token)
+      })
+
   }, [])
 
   const getPopular = () => {
