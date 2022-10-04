@@ -5,11 +5,19 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { API_key } from "./utils/constants"
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 function App() {
 
   const [movies, setMovies] = useState([])
+  const [genres, setGenres] = useState([])
+  const [favorites, setFavorites] = useState([])
+  const [token, setToken] = useState("")
   const [session, setSession] = useState("")
+  const [account, setAccount] = useState("")
 
   useEffect(() => {
     fetch("https://api.themoviedb.org/3/movie/popular?api_key=" + API_key)
@@ -18,11 +26,42 @@ function App() {
         setMovies(data.results)
       })
 
-    fetch("https://api.themoviedb.org/3/authentication/session/new?api_key=" + API_key)
+    fetch("https://api.themoviedb.org/3/authentication/token/new?api_key=" + API_key)
       .then(response => response.json())
       .then(data => {
         console.log(data)
-        setSession(data.request_token)
+        setToken(data.request_token)
+      })
+
+    fetch("https://www.themoviedb.org/authenticate/" + token)
+
+    fetch("https://api.themoviedb.org/3/authentication/session/new?api_key=" + API_key, {
+      method: 'POST',
+      headers: new Headers({ 'Content-Type': 'application/json;charset=utf-8' }),
+      body: JSON.stringify({ request_token: token })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+        setSession(data.session_id)
+      })
+
+    fetch("https://api.themoviedb.org/3/genre/movie/list?api_key=" + API_key)
+      .then(response => response.json())
+      .then(data => {
+        setGenres(data.genres)
+      })
+
+    fetch("https://api.themoviedb.org/3/account?api_key=" + API_key)
+      .then(response => response.json())
+      .then(data => {
+        setAccount(data.id)
+      })
+
+    fetch("https://api.themoviedb.org/3/account/" + account + "/favorite/movies?api_key=" + API_key + "&session_id=" + session)
+      .then(response => response.json())
+      .then(data => {
+        setFavorites(data.results)
       })
 
   }, [])
